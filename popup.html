@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lululemon 追踪器</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-left">
+      <svg class="logo" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+      </svg>
+      <h1>Lulu 追踪器</h1>
+    </div>
+    <button id="btn-refresh" class="icon-btn" title="立即检查全部商品">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="23 4 23 10 17 10"/>
+        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+      </svg>
+    </button>
+  </header>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" data-tab="products">商品</button>
+    <button class="tab" data-tab="collections">收藏夹</button>
+    <button class="tab" data-tab="settings">设置</button>
+  </div>
+
+  <!-- ═══ Tab: 商品 ═══ -->
+  <div id="tab-products" class="tab-content active">
+    <div id="track-section" class="track-section hidden">
+      <div id="current-product-preview" class="current-preview"></div>
+      <button id="btn-track" class="btn-track">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        追踪此商品
+      </button>
+    </div>
+    <div id="message" class="message hidden"></div>
+    <!-- 货号+颜色号 快速添加（全地区） -->
+    <div id="code-add-section" class="code-add-section">
+      <div class="code-add-row">
+        <input id="code-product-input" type="text" placeholder="货号 (如 835113)" spellcheck="false">
+        <input id="code-color-input" type="text" placeholder="颜色号 (如 32493)" spellcheck="false">
+        <button id="btn-code-add" class="btn-code-add">全地区追踪</button>
+      </div>
+      <div id="code-url-preview" class="code-url-preview"></div>
+      <div id="code-add-status" class="code-add-status"></div>
+    </div>
+    <div id="product-list" class="product-list">
+      <div id="empty-state" class="empty-state">
+        <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.35">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+        </svg>
+        <p>暂未追踪任何商品</p>
+        <p class="hint">访问 Lululemon 商品页面，点击"追踪此商品"即可添加</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ Tab: 收藏夹 ═══ -->
+  <div id="tab-collections" class="tab-content">
+    <!-- 保存当前收藏页面 -->
+    <div id="collection-save-section" class="collection-save-section hidden">
+      <div id="collection-page-preview" class="collection-page-preview"></div>
+      <button id="btn-save-collection" class="btn-track">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+        </svg>
+        保存此收藏
+      </button>
+    </div>
+
+    <!-- 手动添加 -->
+    <div class="collection-add-form">
+      <input id="collection-name-input" type="text" placeholder="名称（如：MVT + Pace Breaker）" maxlength="60">
+      <input id="collection-url-input" type="text" placeholder="粘贴 Lululemon 收藏页面 URL">
+      <button id="btn-add-collection" class="btn-add-collection">+ 添加</button>
+    </div>
+
+    <!-- 已保存的收藏列表 -->
+    <div id="collection-list" class="collection-list">
+      <div id="collection-empty" class="empty-state">
+        <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.35">
+          <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+        </svg>
+        <p>暂无收藏</p>
+        <p class="hint">保存筛选后的收藏页面，或在上方粘贴 URL</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ Tab: 设置 ═══ -->
+  <div id="tab-settings" class="tab-content">
+    <div class="settings-section">
+      <h3 class="settings-title">检测频率</h3>
+      <div class="freq-row">
+        <select id="check-interval-select" class="freq-select">
+          <option value="15">每 15 分钟</option>
+          <option value="30">每 30 分钟</option>
+          <option value="60" selected>每 1 小时</option>
+          <option value="120">每 2 小时</option>
+          <option value="240">每 4 小时</option>
+          <option value="360">每 6 小时</option>
+          <option value="720">每 12 小时</option>
+        </select>
+        <span class="freq-note" id="freq-note"></span>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <h3 class="settings-title">地区 Discord Webhook 配置</h3>
+      <p class="settings-hint">为每个地区配置独立的 Discord Webhook，只有填写了 Webhook 的地区才会发送通知。</p>
+
+      <div class="region-config" data-region="us">
+        <div class="region-header">
+          <span class="region-flag">🇺🇸</span>
+          <span class="region-label">美国 (shop.lululemon.com)</span>
+        </div>
+        <input type="text" class="webhook-input" id="webhook-us" placeholder="美国地区 Discord Webhook URL..." spellcheck="false">
+        <textarea class="batch-url-input" id="batch-urls-us" placeholder="批量导入商品 URL，每行一个&#10;例：https://shop.lululemon.com/p/men-tops/abc/_/prod12345?color=00001" rows="3" spellcheck="false"></textarea>
+        <button class="btn-batch-add" data-region="us">+ 批量添加</button>
+        <span class="batch-status" id="batch-status-us"></span>
+      </div>
+
+      <div class="region-config" data-region="hk">
+        <div class="region-header">
+          <span class="region-flag">🇭🇰</span>
+          <span class="region-label">香港 (lululemon.com.hk)</span>
+        </div>
+        <input type="text" class="webhook-input" id="webhook-hk" placeholder="香港地区 Discord Webhook URL..." spellcheck="false">
+        <textarea class="batch-url-input" id="batch-urls-hk" placeholder="批量导入商品 URL，每行一个&#10;例：https://www.lululemon.com.hk/zh-hk/p/_/prod12345.html" rows="3" spellcheck="false"></textarea>
+        <button class="btn-batch-add" data-region="hk">+ 批量添加</button>
+        <span class="batch-status" id="batch-status-hk"></span>
+      </div>
+
+      <div class="region-config" data-region="au">
+        <div class="region-header">
+          <span class="region-flag">🇦🇺</span>
+          <span class="region-label">澳洲 (lululemon.com.au)</span>
+        </div>
+        <input type="text" class="webhook-input" id="webhook-au" placeholder="澳洲地区 Discord Webhook URL..." spellcheck="false">
+        <textarea class="batch-url-input" id="batch-urls-au" placeholder="批量导入商品 URL，每行一个&#10;例：https://www.lululemon.com.au/en-au/p/_/prod12345.html" rows="3" spellcheck="false"></textarea>
+        <button class="btn-batch-add" data-region="au">+ 批量添加</button>
+        <span class="batch-status" id="batch-status-au"></span>
+      </div>
+
+      <div class="region-config" data-region="jp">
+        <div class="region-header">
+          <span class="region-flag">🇯🇵</span>
+          <span class="region-label">日本 (lululemon.co.jp)</span>
+        </div>
+        <input type="text" class="webhook-input" id="webhook-jp" placeholder="日本地区 Discord Webhook URL..." spellcheck="false">
+        <textarea class="batch-url-input" id="batch-urls-jp" placeholder="批量导入商品 URL，每行一个&#10;例：https://www.lululemon.co.jp/ja-jp/p/_/prod12345.html" rows="3" spellcheck="false"></textarea>
+        <button class="btn-batch-add" data-region="jp">+ 批量添加</button>
+        <span class="batch-status" id="batch-status-jp"></span>
+      </div>
+
+      <div class="region-config" data-region="kr">
+        <div class="region-header">
+          <span class="region-flag">🇰🇷</span>
+          <span class="region-label">韩国 (lululemon.co.kr)</span>
+        </div>
+        <input type="text" class="webhook-input" id="webhook-kr" placeholder="韩国地区 Discord Webhook URL..." spellcheck="false">
+        <textarea class="batch-url-input" id="batch-urls-kr" placeholder="批量导入商品 URL，每行一个&#10;例：https://www.lululemon.co.kr/ko-kr/p/_/prod12345.html" rows="3" spellcheck="false"></textarea>
+        <button class="btn-batch-add" data-region="kr">+ 批量添加</button>
+        <span class="batch-status" id="batch-status-kr"></span>
+      </div>
+
+      <div class="region-config" data-region="uk">
+        <div class="region-header">
+          <span class="region-flag">🇬🇧</span>
+          <span class="region-label">英国 (lululemon.co.uk)</span>
+        </div>
+        <input type="text" class="webhook-input" id="webhook-uk" placeholder="英国地区 Discord Webhook URL..." spellcheck="false">
+        <textarea class="batch-url-input" id="batch-urls-uk" placeholder="批量导入商品 URL，每行一个&#10;例：https://www.lululemon.co.uk/en-gb/p/_/prod12345.html" rows="3" spellcheck="false"></textarea>
+        <button class="btn-batch-add" data-region="uk">+ 批量添加</button>
+        <span class="batch-status" id="batch-status-uk"></span>
+      </div>
+      <div class="region-config" data-region="ca">
+        <div class="region-header">
+          <span class="region-flag">🇨🇦</span>
+          <span class="region-label">加拿大 (shop.lululemon.com/en-ca)</span>
+        </div>
+        <input type="text" class="webhook-input" id="webhook-ca" placeholder="加拿大地区 Discord Webhook URL..." spellcheck="false">
+        <textarea class="batch-url-input" id="batch-urls-ca" placeholder="批量导入商品 URL，每行一个&#10;例：https://shop.lululemon.com/en-ca/p/_/prod12345" rows="3" spellcheck="false"></textarea>
+        <button class="btn-batch-add" data-region="ca">+ 批量添加</button>
+        <span class="batch-status" id="batch-status-ca"></span>
+      </div>
+      <div class="region-config" data-region="fr">
+        <div class="region-header">
+          <span class="region-flag">🇫🇷</span>
+          <span class="region-label">法国 (lululemon.fr)</span>
+        </div>
+        <input type="text" class="webhook-input" id="webhook-fr" placeholder="法国地区 Discord Webhook URL..." spellcheck="false">
+        <textarea class="batch-url-input" id="batch-urls-fr" placeholder="批量导入商品 URL，每行一个&#10;例：https://www.lululemon.fr/fr-fr/p/_/prod12345.html" rows="3" spellcheck="false"></textarea>
+        <button class="btn-batch-add" data-region="fr">+ 批量添加</button>
+        <span class="batch-status" id="batch-status-fr"></span>
+      </div>
+      <div class="region-config" data-region="vn">
+        <div class="region-header">
+          <span class="region-flag">🇻🇳</span>
+          <span class="region-label">越南 (lululemon.com.hk/en-vn)</span>
+        </div>
+        <input type="text" class="webhook-input" id="webhook-vn" placeholder="越南地区 Discord Webhook URL..." spellcheck="false">
+        <textarea class="batch-url-input" id="batch-urls-vn" placeholder="批量导入商品 URL，每行一个&#10;例：https://www.lululemon.com.hk/en-vn/p/_/prod12345.html" rows="3" spellcheck="false"></textarea>
+        <button class="btn-batch-add" data-region="vn">+ 批量添加</button>
+        <span class="batch-status" id="batch-status-vn"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <span id="last-check"></span>
+    <div class="footer-right">
+      <select id="currency-selector" class="currency-selector" title="价格比较货币">
+        <option value="USD">USD</option>
+        <option value="HKD">HKD</option>
+        <option value="AUD">AUD</option>
+        <option value="JPY">JPY</option>
+        <option value="KRW">KRW</option>
+        <option value="GBP">GBP</option>
+        <option value="CAD">CAD</option>
+        <option value="EUR">EUR</option>
+        <option value="VND">VND</option>
+      </select>
+      <span>每小时检查一次</span>
+    </div>
+  </footer>
+
+  <script src="popup.js"></script>
+</body>
+</html>

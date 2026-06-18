@@ -1,0 +1,64 @@
+{
+  "manifest_version": 3,
+  "name": "Lululemon Product Tracker",
+  "version": "1.0.0",
+  "description": "Track Lululemon product availability, price changes, new colors, and stock status.",
+  "permissions": [
+    "storage",
+    "alarms",
+    "activeTab",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://shop.lululemon.com/*",
+    "https://www.lululemon.com.hk/*",
+    "https://lululemon.com.hk/*",
+    "https://www.lululemon.com.au/*",
+    "https://www.lululemon.co.jp/*",
+    "https://www.lululemon.co.kr/*",
+    "https://www.lululemon.co.uk/*",
+    "https://www.lululemon.fr/*",
+    "https://www.lululemon.com/*",
+    "https://open.er-api.com/*",
+    "https://discord.com/*",
+    "https://discordapp.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://shop.lululemon.com/*",
+        "https://www.lululemon.com.hk/*",
+        "https://lululemon.com.hk/*",
+        "https://www.lululemon.com.au/*",
+        "https://lululemon.com.au/*",
+        "https://www.lululemon.co.jp/*",
+        "https://lululemon.co.jp/*",
+        "https://www.lululemon.co.kr/*",
+        "https://lululemon.co.kr/*",
+        "https://www.lululemon.co.uk/*",
+        "https://lululemon.co.uk/*",
+        "https://www.lululemon.fr/*",
+        "https://lululemon.fr/*",
+        "https://www.lululemon.com/*"
+      ],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
